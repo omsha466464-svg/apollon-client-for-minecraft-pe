@@ -58,38 +58,72 @@
 #include "Images/wolf.h"
 #include "Images/zombie_piglin.h"
 #include "Images/zombie_villager.h"
+// --- CUSTOM AUTOTOTEM MODULE ---
+bool isAutoTotemEnabled = true;
+// --- CUSTOM MODULE CONFIG VARIABLES ---
+bool isAutoTotemEnabled = false;
+bool isSuffixEnabled = false;
+std::string customSuffix = " | Invis client beta!";
 
-void TickFunctions() {
-	if (auraType < 2) {
-		if (maxKillTick > currentKillTick && !canKillAuraDamage) {
-	        currentKillTick = currentKillTick + 1;
-		} else {
-		    canKillAuraDamage = true;
-			currentKillTick = 1;
-		}
-		if (maxMobAuraTick > currentMobTick && !canMobAuraDamage) {
-	        currentMobTick = currentMobTick + 1;
-		} else {
-		    canMobAuraDamage = true;
-			currentMobTick = 1;
-		}
-	}
-	if (emulateNativeAttack) {
-		rotations = true;
-		targetLock = true;
-	}
-	if (autoClicker) {
-		if (maxAutoClickTick > currentAutoClickTick && !canClick) {
-	        currentAutoClickTick = currentAutoClickTick + 1;
-		} else {
-		    canClick = true;
-			currentAutoClickTick = 1;
-		}
-	}
+void ckFunctions() {
+    if (auraType < 2) {
+        if (maxKillTick > currentKillTick && !canKillAuraDamage) {
+            currentKillTick = currentKillTick + 1;
+        } else {
+            canKillAuraDamage = true;
+            currentKillTick = 1;
+        }
+        if (maxMobAuraTick > currentMobTick && !canMobAuraDamage) {
+            currentMobTick = currentMobTick + 1;
+        } else {
+            canMobAuraDamage = true;
+            currentMobTick = 1;
+        }
+    }
+
+    if (emulateNativeAttack) {
+        rotations = true;
+        targetLock = true;
+    }
+
+    if (autoClicker) {
+        if (maxAutoClickTick > currentAutoClickTick && !canClick) {
+            currentAutoClickTick = currentAutoClickTick + 1;
+        } else {
+            canClick = true;
+            currentAutoClickTick = 1;
+        }
+    }
+
+    // --- CUSTOM AUTOTOTEM LOGIC ---
+    if (isAutoTotemEnabled) {
+        auto localPlayer = getLocalPlayer();
+        if (localPlayer != nullptr) {
+            auto offhandItem = localPlayer->getOffhandItem();
+            if (offhandItem == nullptr || offhandItem->getId() == 0) {
+                for (int slot = 0; slot < 36; slot++) {
+                    auto inventoryItem = localPlayer->getInventoryItem(slot);
+                    if (inventoryItem != nullptr && inventoryItem->getId() == 558) {
+                        localPlayer->equipToOffhand(slot);
+                        break; 
+                    }
+                }
+            }
+        }
+    }
 }
+
+
+
 
 void BeginDraw() {
     if (!panic) {
+        // --- YOUR CUSTOM BUTTONS ---
+        ImGui::Begin("Custom Additions");
+        ImGui::Checkbox("Auto Totem", &isAutoTotemEnabled);
+        ImGui::Checkbox("Chat Suffix", &isSuffixEnabled);
+        ImGui::End();
+
      ImGuiIO &io = ImGui::GetIO();
      ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 	 
